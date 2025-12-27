@@ -1,80 +1,89 @@
-//
-//  FirebaseService.swift
-//  IOT-App
-//
-//  Created by Thuận Nguyễn on 11/12/25.
-//
+import Foundation
+import FirebaseDatabase
 
-// FirebaseService.swift
-import Firebase
+final class FirebaseService {
 
-class FirebaseService {
-    private var ref: DatabaseReference!
+    private let ref: DatabaseReference
+    private var sensorHandle: DatabaseHandle?
 
     init() {
-        ref = Database.database().reference()
+        self.ref = Database.database().reference()
     }
 
-    // Hàm lấy dữ liệu từ Firebase Realtime Database
-    func fetchSensorData(completion: @escaping (SensorData?) -> Void) {
-        ref.child("sensor").observeSingleEvent(of: .value) { snapshot in
+    deinit {
+        removeListener()
+    }
+
+    func observeSensorData(
+        onUpdate: @escaping (SensorData?) -> Void
+    ) {
+        removeListener()
+
+        sensorHandle = ref.child("sensor").observe(.value) { snapshot in
             guard let value = snapshot.value as? [String: Any] else {
-                completion(nil)
+                DispatchQueue.main.async {
+                    onUpdate(nil)
+                }
                 return
             }
-            
-            // Lấy dữ liệu từ các node con của "sensor"
-            let humidityData = value["humidity"] as? [String: Any]
-            let rainStatusData = value["rain_status"] as? [String: Any]
-            let relayData = value["relay"] as? [String: Any]
-            let temperatureData = value["temperature"] as? [String: Any]
-            
-            // Tạo các đối tượng SensorReading từ dữ liệu Firebase
-            let humidity = SensorReading(
-                timestamp: humidityData?["timestamp"] as? Double ?? 0,
-                value: humidityData?["value"] as? String ?? ""
-            )
-            
-            let rainStatus = SensorReading(
-                timestamp: rainStatusData?["timestamp"] as? Double ?? 0,
-                value: rainStatusData?["value"] as? String ?? ""
-            )
-            
-            let relay = SensorReading(
-                timestamp: relayData?["timestamp"] as? Double ?? 0,
-                value: relayData?["value"] as? String ?? ""
-            )
-            
-            let temperature = SensorReading(
-                timestamp: temperatureData?["timestamp"] as? Double ?? 0,
-                value: temperatureData?["value"] as? String ?? ""
-            )
-            
-            // Tạo SensorData từ các đối tượng SensorReading
+
             let sensorData = SensorData(
                 id: snapshot.key,
-                humidity: humidity,
-                rainStatus: rainStatus,
-                relay: relay,
-                temperature: temperature
+                humidity: self.makeReading(value, "humidity"),
+                rainStatus: self.makeReading(value, "rain_status"),
+                relay: self.makeReading(value, "relay"),
+                temperature: self.makeReading(value, "temperature")
             )
-            
-            completion(sensorData)
+
+            DispatchQueue.main.async {
+                onUpdate(sensorData)
+            }
         }
     }
 
-    // Hàm cập nhật trạng thái bơm (relay) trong Firebase
     func updatePumpStatus(isOn: Bool) {
-        let pumpStatus = isOn ? "ON" : "OFF"
+        let status = isOn ? "ON" : "OFF"
         ref.child("sensor/relay").setValue([
-            "value": pumpStatus,
-            "timestamp": Date().timeIntervalSince1970 // Thêm timestamp nếu cần
-        ]) { error, _ in
-            if let error = error {
-                print("Error updating pump status: \(error.localizedDescription)")
-            } else {
-                print("Pump status updated to \(pumpStatus)")
-            }
+            "value": status,
+            "timestamp": Date().timeIntervalSince1970
+        ])
+    }
+
+    func removeListener() {
+        if let handle = sensorHandle {
+            ref.child("sensor").removeObserver(withHandle: handle)
+            sensorHandle = nil
         }
+    }
+
+    // MARK: - Helpers
+
+    private func makeReading(
+        _ root: [String: Any],
+        _ key: String
+    ) -> SensorReading {
+
+        let data = root[key] as? [String: Any]
+
+        let timestamp = data?["timestamp"] as? Double ?? 0
+        let rawValue = data?["value"]
+
+        return SensorReading(
+            timestamp: timestamp,
+            value: parseValue(rawValue)
+        )
+    }
+
+    private func parseValue(_ value: Any?) -> String {
+        if let string = value as? String {
+            return string
+        }
+        if let double = value as? Double {
+            return String(double)
+        }
+        if let int = value as? Int {
+            return String(int)
+        }
+        return ""
     }
 }

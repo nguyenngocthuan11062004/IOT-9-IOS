@@ -8,20 +8,31 @@
 
 /* Begin PBXBuildFile section */
 		CA07D0448B6311F056B246EB /* Pods_IOT9.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5EFBB0252630F9B53F709932 /* Pods_IOT9.framework */; };
-		E4A155362EEC1A3B0055778B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E4A155352EEC1A3B0055778B /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		5EFBB0252630F9B53F709932 /* Pods_IOT9.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_IOT9.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0AA7F1CBC4E3236F3DADA2C /* Pods-IOT9.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IOT9.release.xcconfig"; path = "Target Support Files/Pods-IOT9/Pods-IOT9.release.xcconfig"; sourceTree = "<group>"; };
 		E431D26D2EEB04450089ED1E /* IOT9.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IOT9.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		E4A155352EEC1A3B0055778B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FA06F2B087C2104BD735F5A5 /* Pods-IOT9.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-IOT9.debug.xcconfig"; path = "Target Support Files/Pods-IOT9/Pods-IOT9.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E484A7EF2EFFDF4E00DD2704 /* Exceptions for "IOT9" folder in "IOT9" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Untitled.swift,
+			);
+			target = E431D26C2EEB04450089ED1E /* IOT9 */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E431D26F2EEB04450089ED1E /* IOT9 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E484A7EF2EFFDF4E00DD2704 /* Exceptions for "IOT9" folder in "IOT9" target */,
+			);
 			path = IOT9;
 			sourceTree = "<group>";
 		};
@@ -63,7 +74,6 @@
 				E431D26E2EEB04450089ED1E /* Products */,
 				121A03DB3FE56B89CCC660F8 /* Pods */,
 				BE158125D34C26E193E8F883 /* Frameworks */,
-				E4A155352EEC1A3B0055778B /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -139,7 +149,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E4A155362EEC1A3B0055778B /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -16,7 +16,11 @@ struct ChatBubble: View {
 
             Text(message.text)
                 .padding(12)
-                .background(message.isUser ? Color.blue : Color.gray.opacity(0.2))
+                .background(
+                    message.isUser
+                    ? Color(red: 32/255, green: 163/255, blue: 41/255)
+                    : Color.gray.opacity(0.2)
+                )
                 .foregroundColor(message.isUser ? .white : .black)
                 .cornerRadius(16)
                 .frame(maxWidth: 260, alignment: message.isUser ? .trailing : .leading)

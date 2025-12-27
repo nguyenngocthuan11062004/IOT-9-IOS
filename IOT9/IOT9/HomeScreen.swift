@@ -36,13 +36,6 @@ struct HomeScreen: View {
                     } else {
                         InfoCard(icon: "drop", title: "Nhiệt độ", value: "Loading...")
                     }
-                    
-                    // Độ ẩm đất (soil humidity)
-                    if let sensorData = sensorData {
-                        InfoCard(icon: "thermometer", title: "Độ ẩm đất", value: "\(sensorData.humidity.value)%")
-                    } else {
-                        InfoCard(icon: "thermometer", title: "Độ ẩm đất", value: "Loading...")
-                    }
                 }
 
                 // HÀNG 2 – CARD TRÁI NHỎ + CARD PHẢI TO
@@ -89,9 +82,9 @@ struct HomeScreen: View {
             Spacer()
         }
         .onAppear {
-            // Fetch sensor data when the view appears
-            firebaseService.fetchSensorData { fetchedData in
-                self.sensorData = fetchedData
+            firebaseService.observeSensorData { data in
+                self.sensorData = data
+                self.pumpOn = data?.relay.value == "ON"
             }
         }
     }

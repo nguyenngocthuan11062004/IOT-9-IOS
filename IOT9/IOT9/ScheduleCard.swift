@@ -2,42 +2,66 @@
 //  ScheduleCard.swift
 //  IOT-App
 //
-//  Created by Thuận Nguyễn on 10/12/25.
-//
 
 import SwiftUI
-struct ScheduleCard: View {
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Image(systemName: "clock")
-                    Text("Lịch bơm")
-                        .font(.system(size: 16, weight: .semibold))
-                }
-                .foregroundColor(Color.green.opacity(0.9))
 
-                Text("Thời gian: 20/12/2025")
-                Text("Lúc: 14:52")
+struct ScheduleCard: View {
+
+    @State private var showSchedule = false
+
+    var body: some View {
+        Button {
+            showSchedule = true
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Image(systemName: "clock")
+                            .foregroundColor(.black)
+                        Text("Lịch bơm")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.black)
+                    }
+
+                    Text("Xem & quản lý lịch bơm tự động")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
             }
-            .font(.system(size: 14))
-            
-            Spacer()
-            
-            ZStack {
-                Circle()
-                    .fill(Color.green.opacity(0.85))
-                    .frame(width: 45, height: 45)
-                
-                Image(systemName: "pencil")
-                    .foregroundColor(.white)
-            }
+            .padding()
+            .background(Color.white)
+            .cornerRadius(8)
+            .shadow(color: Color.black.opacity(0.1), radius: 6, y: 4)
         }
-        .padding()
-        .frame(maxWidth: .infinity, minHeight: 100)
-        .background(Color.white)
-        .cornerRadius(8)
-        .shadow(color: Color.black.opacity(0.1), radius: 6, y: 4)
+        .buttonStyle(.plain)
+        .sheet(isPresented: $showSchedule) {
+            NavigationStack {
+                ScheduleListScreen()
+
+                    .preferredColorScheme(.light)
+
+                    .navigationTitle("Lịch bơm")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbarColorScheme(.light, for: .navigationBar)
+                    .toolbarBackground(.visible, for: .navigationBar)
+                    .toolbarBackground(Color.white, for: .navigationBar)
+
+                    .tint(Color.green)
+
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarLeading) {
+                            Button("Đóng") { showSchedule = false }
+                                .foregroundColor(.black) // chữ đen đúng ý Anh
+                        }
+                    }
+            }
+            .presentationBackground(Color.white)
+        }
+
     }
 }
-

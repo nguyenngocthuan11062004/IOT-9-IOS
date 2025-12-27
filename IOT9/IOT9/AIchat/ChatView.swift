@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ChatView: View {
     @Environment(\.dismiss) var dismiss
-    @StateObject private var vm = ChatViewModel()
+    @ObservedObject var vm: ChatViewModel
 
     var body: some View {
         VStack(spacing: 0) {
@@ -37,7 +37,8 @@ struct ChatView: View {
 
                 Color.clear.frame(width: 24)
             }
-            .padding()
+            .frame(height: 60)
+            .padding(.horizontal, 20)
             .background(Color.white)
 
             Divider()
@@ -46,20 +47,46 @@ struct ChatView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(spacing: 4) {
+
+                        // Tin nhắn đã gửi
                         ForEach(vm.messages) { msg in
                             ChatBubble(message: msg)
                                 .id(msg.id)
+                        }
+
+                        // AI đang phân tích (Typing indicator)
+                        if vm.isStreaming && vm.streamingText.isEmpty {
+                            HStack {
+                                Text("AI đang phân tích")
+                                    .font(.footnote)
+                                    .foregroundColor(.gray)
+
+                                TypingDotsView()
+                            }
+                            .padding(.horizontal)
+                            .padding(.vertical, 6)
+                            .id("typing_indicator")
+                        }
+
+                        // AI đang stream nội dung
+                        if vm.isStreaming && !vm.streamingText.isEmpty {
+                            ChatBubble(
+                                message: ChatMessage(
+                                    text: vm.streamingText,
+                                    isUser: false
+                                )
+                            )
+                            .id("streaming_message")
                         }
                     }
                     .padding(.top, 8)
                 }
                 .background(Color.white)
                 .onChange(of: vm.messages.count) { _ in
-                    if let last = vm.messages.last {
-                        withAnimation(.easeOut) {
-                            proxy.scrollTo(last.id, anchor: .bottom)
-                        }
-                    }
+                    scrollToBottom(proxy)
+                }
+                .onChange(of: vm.streamingText) { _ in
+                    scrollToBottom(proxy)
                 }
             }
 
@@ -73,6 +100,8 @@ struct ChatView: View {
                 Image(systemName: "folder")
 
                 TextField("Text", text: $vm.inputText)
+                    .disabled(vm.isStreaming) // 🔒 chặn nhập khi AI đang trả lời
+                    .opacity(vm.isStreaming ? 0.6 : 1)
                     .padding(.vertical, 10)
                     .padding(.horizontal, 14)
                     .background(Color(.systemGray6))
@@ -89,7 +118,9 @@ struct ChatView: View {
                         .background(Color.green)
                         .clipShape(Circle())
                 }
-                .disabled(vm.inputText.isEmpty || vm.isSending)
+                .disabled(
+                    vm.inputText.isEmpty || vm.isStreaming
+                )
             }
             .padding(.horizontal)
             .padding(.vertical, 10)
@@ -100,9 +131,23 @@ struct ChatView: View {
         }
         .background(Color.white)
         .navigationBarHidden(true)
+        .preferredColorScheme(.light)
     }
-}
 
-#Preview {
-    ChatView()
+    // MARK: - Auto scroll helper
+    private func scrollToBottom(_ proxy: ScrollViewProxy) {
+        DispatchQueue.main.async {
+            withAnimation(.easeOut) {
+                if vm.isStreaming {
+                    if vm.streamingText.isEmpty {
+                        proxy.scrollTo("typing_indicator", anchor: .bottom)
+                    } else {
+                        proxy.scrollTo("streaming_message", anchor: .bottom)
+                    }
+                } else if let last = vm.messages.last {
+                    proxy.scrollTo(last.id, anchor: .bottom)
+                }
+            }
+        }
+    }
 }

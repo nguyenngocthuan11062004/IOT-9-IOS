@@ -47,6 +47,7 @@ struct IOT9App: App {
 struct FloatingChatBubble: View {
     @State private var isChatOpen = false
     @State private var showChatView = false
+    @StateObject private var chatVM = ChatViewModel()
 
     var body: some View {
         VStack {
@@ -55,23 +56,29 @@ struct FloatingChatBubble: View {
             HStack {
                 Spacer()
 
-                Button(action: {
-                    // Mở màn hình chat khi nhấn vào bong bóng chat
-                    isChatOpen.toggle()
+                Button {
+                    chatVM.prefetchPlantContext(
+                        temperature: 31.2,
+                        humidity: 68,
+                        isRaining: false
+                    )
+
+                    chatVM.autoAskPlantAdviceIfNeeded() // GỬI CÂU HỎI NGẦM
+
                     showChatView = true
-                }) {
-                    Image(systemName: "message.fill")
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(Color.blue)
+                } label: {
+                    Image("ai_icon")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 46, height: 46)
+                        .padding(14)
+                        .background(Color.white) // hoặc Color(red: 32/255, green: 163/255, blue: 41/255)
                         .clipShape(Circle())
                         .shadow(radius: 10)
                 }
-                .padding()
+                .offset(y: -100)
                 .sheet(isPresented: $showChatView) {
-                    // Hiển thị màn hình ChatView khi người dùng nhấn vào bong bóng chat
-                    ChatView()
+                    ChatView(vm: chatVM)
                 }
             }
         }
